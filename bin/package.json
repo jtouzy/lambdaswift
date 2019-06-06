@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/jtouzy/lambdaswift#readme",
   "dependencies": {
+    "fs-extra": "^8.0.1",
     "yargs": "^13.2.4"
   }
 }
