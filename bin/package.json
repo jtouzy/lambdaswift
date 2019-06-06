@@ -1,0 +1,30 @@
+{
+  "name": "lambdaswift",
+  "version": "0.0.1",
+  "description": "Swift language runtime and framework for AWS Lambda",
+  "main": "lambdaswift.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jtouzy/lambdaswift.git"
+  },
+  "keywords": [
+    "aws",
+    "lambda",
+    "swift"
+  ],
+  "author": "Jérémy TOUZY <jtouzy2@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jtouzy/lambdaswift/issues"
+  },
+  "homepage": "https://github.com/jtouzy/lambdaswift#readme",
+  "dependencies": {
+    "yargs": "^13.2.4"
+  }
+}
