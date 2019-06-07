@@ -104,7 +104,7 @@ module.exports = {
     })
     .then(() => {
       const toolsPath = path.resolve(__dirname, '..')
-      const bootstrapFileName = 'bootstrap.sh'
+      const bootstrapFileName = 'bootstrap'
       const bootstrapFilePath = path.join(toolsPath, bootstrapFileName)
       const bootstrapFilePathDestination = path.join(buildPath, bootstrapFileName)
       fs.copyFileSync(bootstrapFilePath, bootstrapFilePathDestination)
