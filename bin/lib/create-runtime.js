@@ -1,6 +1,6 @@
 const fs = require('fs-extra')
 const path = require('path')
-const { runCommand } = require('./utils')
+const { clearOrCreatePath, runCommand } = require('./utils')
 
 const linuxDependencies = [
   '/lib/x86_64-linux-gnu/libbsd.so.0',
@@ -79,38 +79,48 @@ module.exports = {
     const dockerImage = argv.image
     const basePath = process.cwd()
     const buildPath = path.resolve(basePath, '.build')
-    fs.removeSync(buildPath)
-    fs.mkdirSync(buildPath)
+    const sharedLibsPath = path.join(buildPath, 'swift-shared-libs')
+    const zipPath = path.join(basePath, 'generated')
+    clearOrCreatePath(sharedLibsPath)
     runCommand([
       'docker run',
       '--rm',
-      `--volume "${buildPath}:/src"`,
+      `--volume "${sharedLibsPath}:/src"`,
       '--workdir "/src"',
       dockerImage,
       `cp /lib64/ld-linux-x86-64.so.2 .`
-    ]).then(() => {
-        fs.mkdirSync(path.join(buildPath, 'lib'))
-        return runCommand([
-          'docker run --rm',
-          `--volume "${buildPath}:/src" --workdir "/src"`,
-          dockerImage,
-          'cp -t ./lib'
-        ].concat(linuxDependencies))
-      })
-      .then(() => {
-        let zipPath = path.join(basePath, 'generated')
-        fs.mkdirSync(zipPath)
-        zipPath = path.join(zipPath, 'swift-runtime.zip')
-        fs.removeSync(zipPath)
-        return runCommand([
-          `cd ${buildPath}`, 
-          '&&', 
-          `zip -r ${zipPath} *`
-        ])
-      })
-      .then(() => {
-        console.log('Swift runtime generated.')
-        console.log('Use aws command to create or update your layer in AWS.')
-      })
+    ])
+    .then(() => {
+      const libFolder = 'lib'
+      fs.mkdirSync(path.join(sharedLibsPath, libFolder))
+      return runCommand([
+        'docker run --rm',
+        `--volume "${sharedLibsPath}:/src" --workdir "/src"`,
+        dockerImage,
+        `cp -t ./${libFolder}`
+      ].concat(linuxDependencies))
+    })
+    .then(() => {
+      const toolsPath = path.resolve(__dirname, '..')
+      const bootstrapFileName = 'bootstrap.sh'
+      const bootstrapFilePath = path.join(toolsPath, bootstrapFileName)
+      const bootstrapFilePathDestination = path.join(buildPath, bootstrapFileName)
+      fs.copyFileSync(bootstrapFilePath, bootstrapFilePathDestination)
+      return runCommand(['chmod 755', bootstrapFilePathDestination])
+    })
+    .then(() => {
+      fs.mkdirpSync(zipPath)
+      const zipFilePath = path.join(zipPath, 'swift-runtime.zip')
+      fs.removeSync(zipFilePath)
+      return runCommand([
+        `cd ${buildPath}`, 
+        '&&', 
+        `zip -r ${zipFilePath} *`
+      ])
+    })
+    .then(() => {
+      console.log(`Swift runtime generated in ${zipPath}.`)
+      console.log('Use aws command to create or update your layer in AWS.')
+    })
   }
 }

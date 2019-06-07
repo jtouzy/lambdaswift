@@ -1,12 +1,20 @@
 const childProcess = require('child_process')
+const fs = require('fs-extra')
 
-const isNull = (element) => {
-  return typeof element === 'undefined' || element === null
-} 
+const clearOrCreatePath = (path) => {
+  if (fs.existsSync(path)) {
+    fs.removeSync(path)
+  }
+  fs.mkdirpSync(path)
+}
 
 const handleError = (message) => {
   console.error(message)
   process.exit(1)
+}
+
+const isNull = (element) => {
+  return typeof element === 'undefined' || element === null
 }
 
 const runCommand = (commandParts) => {
@@ -23,6 +31,7 @@ const runCommand = (commandParts) => {
 }
 
 module.exports = {
+  clearOrCreatePath,
   handleError,
   isNull,
   runCommand
