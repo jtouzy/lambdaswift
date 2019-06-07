@@ -80,7 +80,9 @@ module.exports = {
     const basePath = process.cwd()
     const buildPath = path.resolve(basePath, '.build')
     const sharedLibsPath = path.join(buildPath, 'swift-shared-libs')
-    const zipPath = path.join(basePath, 'generated')
+    const generationFolderName = 'generated'
+    const generationPath = path.join(basePath, generationFolderName)
+    const generatedFileName = 'swift-runtime.zip'
     clearOrCreatePath(sharedLibsPath)
     runCommand([
       'docker run',
@@ -109,8 +111,8 @@ module.exports = {
       return runCommand(['chmod 755', bootstrapFilePathDestination])
     })
     .then(() => {
-      fs.mkdirpSync(zipPath)
-      const zipFilePath = path.join(zipPath, 'swift-runtime.zip')
+      fs.mkdirpSync(generationPath)
+      const zipFilePath = path.join(generationPath, generatedFileName)
       fs.removeSync(zipFilePath)
       return runCommand([
         `cd ${buildPath}`, 
@@ -119,8 +121,14 @@ module.exports = {
       ])
     })
     .then(() => {
-      console.log(`Swift runtime generated in ${zipPath}.`)
-      console.log('Use aws command to create or update your layer in AWS.')
+      console.log(`
+  ✅️ Swift runtime generated in folder: ${generationPath}
+  Use aws command to create or update the runtime layer in AWS:
+
+  ==> aws lambda publish-layer-version --layer-name my-swift-runtime --zip-file fileb://${generationFolderName}/${generatedFileName}
+
+  Keep the generated layer ARN to use it in your swift lambda functions.
+      `)
     })
   }
 }
