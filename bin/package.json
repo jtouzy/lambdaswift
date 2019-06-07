@@ -3,11 +3,9 @@
   "version": "0.0.1",
   "description": "Swift language runtime and framework for AWS Lambda",
   "main": "lambdaswift.js",
-  "directories": {
-    "lib": "lib"
-  },
+  "bin": "lambdaswift.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "package": "pkg . --out-path dist --targets node8-macos-x64 && tar -zcvf \"dist/lambdaswift.tar.gz\" dist/lambdaswift"
   },
   "repository": {
     "type": "git",
@@ -27,5 +25,8 @@
   "dependencies": {
     "fs-extra": "^8.0.1",
     "yargs": "^13.2.4"
+  },
+  "devDependencies": {
+    "pkg": "^4.4.0"
   }
 }
